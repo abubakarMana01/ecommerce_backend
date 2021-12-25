@@ -1,17 +1,19 @@
 import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 import User from "../models/User";
 import { registerValidation } from "../validation";
 
 async function registerController(req: Request, res: Response) {
-	const { name, email, password } = req.body;
+	const { name, email, password, accountNumber, phoneNumber } = req.body;
 
 	const { error } = registerValidation(req.body);
 	if (error) return res.status(400).send({ error: error.details[0].message });
 
 	try {
 		const emailExists = await User.findOne({ email: req.body.email });
-		if (emailExists) return res.status(400).send("User already exists");
+		if (emailExists)
+			return res.status(400).send({ error: "User already exists" });
 
 		const salt = await bcrypt.genSalt(10);
 		const hashedPassword = await bcrypt.hash(password, salt);
@@ -20,12 +22,15 @@ async function registerController(req: Request, res: Response) {
 			name,
 			email,
 			password: hashedPassword,
+			phoneNumber: phoneNumber,
+			accountNumber: accountNumber,
 		});
 
 		const savedUser = await user.save();
-		res.send({ id: savedUser._id });
+		res.send({ _id: savedUser._id });
 	} catch (err: any) {
-		res.status(400).send({ error: err.message });
+		console.log(err.message);
+		res.status(400).json({ error: err.message });
 	}
 }
 
@@ -41,10 +46,22 @@ async function loginController(req: Request, res: Response) {
 		if (!isMatch)
 			return res.status(400).send({ error: "Username or password incorrect" });
 
-		res.send(user.name + " logged in");
+		const token = jwt.sign({ _id: user._id }, `${process.env.JWT_SECRET}`, {
+			expiresIn: "5m",
+		});
+		res.header("x-auth-token", token).send({ token });
 	} catch (err: any) {
 		res.status(400).send({ error: err.message });
 	}
 }
 
-export { registerController, loginController };
+async function privateController(req: Request, res: Response) {
+	try {
+		const user = await User.find();
+		res.send({ user });
+	} catch (err: any) {
+		res.status(400).send({ error: err.message });
+	}
+}
+
+export { registerController, loginController, privateController };

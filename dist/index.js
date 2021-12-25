@@ -11,7 +11,7 @@ const auth_1 = __importDefault(require("./routes/auth"));
 const app = (0, express_1.default)();
 mongoose_1.default.connect(`${process.env.MONGO_URI}`, (err) => {
     if (err)
-        return console.log(err);
+        return console.log(err.message);
     console.log("Connected to database");
 });
 app.use(express_1.default.json());

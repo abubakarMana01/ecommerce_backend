@@ -7,9 +7,15 @@ exports.loginValidation = exports.registerValidation = void 0;
 const joi_1 = __importDefault(require("joi"));
 function registerValidation(data) {
     const schema = joi_1.default.object({
-        name: joi_1.default.string().required().min(3).max(255),
-        email: joi_1.default.string().email().required().min(3).max(255),
-        password: joi_1.default.string().required().min(6).max(1024),
+        name: joi_1.default.string().required().min(3).max(255).label("Name"),
+        email: joi_1.default.string().email().required().min(3).max(255).label("Email"),
+        password: joi_1.default.string().required().min(6).max(1024).label("Password"),
+        accountNumber: joi_1.default.string()
+            .required()
+            .min(9)
+            .max(9)
+            .label("Account Number"),
+        phoneNumber: joi_1.default.string().required().min(11).max(11).label("Phone Number"),
     });
     return schema.validate(data);
 }
