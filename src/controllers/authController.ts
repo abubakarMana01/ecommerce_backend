@@ -5,7 +5,7 @@ import User from "../models/User";
 import { registerValidation } from "../validation";
 
 async function registerController(req: Request, res: Response) {
-	const { name, email, password, accountNumber, phoneNumber } = req.body;
+	const { name, email, password } = req.body;
 
 	const { error } = registerValidation(req.body);
 	if (error) return res.status(400).send({ error: error.details[0].message });
@@ -22,8 +22,6 @@ async function registerController(req: Request, res: Response) {
 			name,
 			email,
 			password: hashedPassword,
-			phoneNumber: phoneNumber,
-			accountNumber: accountNumber,
 		});
 
 		const savedUser = await user.save();

@@ -19,7 +19,7 @@ const User_1 = __importDefault(require("../models/User"));
 const validation_1 = require("../validation");
 function registerController(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
-        const { name, email, password, accountNumber, phoneNumber } = req.body;
+        const { name, email, password } = req.body;
         const { error } = (0, validation_1.registerValidation)(req.body);
         if (error)
             return res.status(400).send({ error: error.details[0].message });
@@ -33,8 +33,6 @@ function registerController(req, res) {
                 name,
                 email,
                 password: hashedPassword,
-                phoneNumber: phoneNumber,
-                accountNumber: accountNumber,
             });
             const savedUser = yield user.save();
             res.send({ _id: savedUser._id });

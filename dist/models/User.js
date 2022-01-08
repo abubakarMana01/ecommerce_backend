@@ -7,8 +7,6 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const schema = new mongoose_1.default.Schema({
     name: { required: true, type: String },
     email: { required: true, type: String },
-    accountNumber: { required: true, type: String },
-    phoneNumber: { required: true, type: String },
     password: { required: true, type: String },
     date: { default: Date.now, type: Date },
 });
