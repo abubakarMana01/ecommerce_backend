@@ -1,17 +1,18 @@
 import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+
 import User from "../models/User";
 import { registerValidation } from "../validation";
 
 async function registerController(req: Request, res: Response) {
-	const { name, email, password } = req.body;
+	const { username, email, password } = req.body;
 
 	const { error } = registerValidation(req.body);
 	if (error) return res.status(400).send({ error: error.details[0].message });
 
 	try {
-		const emailExists = await User.findOne({ email: req.body.email });
+		let emailExists = await User.findOne({ email: req.body.email });
 		if (emailExists)
 			return res.status(400).send({ error: "User already exists" });
 
@@ -19,13 +20,16 @@ async function registerController(req: Request, res: Response) {
 		const hashedPassword = await bcrypt.hash(password, salt);
 
 		const user = new User({
-			name,
+			likedProducts: [],
+			cart: [],
+			orders: [],
+			username,
 			email,
 			password: hashedPassword,
 		});
 
 		const savedUser = await user.save();
-		res.send({ _id: savedUser._id });
+		res.send({ user: savedUser });
 	} catch (err: any) {
 		console.log(err.message);
 		res.status(400).json({ error: err.message });
@@ -44,10 +48,10 @@ async function loginController(req: Request, res: Response) {
 		if (!isMatch)
 			return res.status(400).send({ error: "Username or password incorrect" });
 
-		const token = jwt.sign({ _id: user._id }, `${process.env.JWT_SECRET}`, {
+		const token = jwt.sign({ user }, `${process.env.JWT_SECRET}`, {
 			expiresIn: "5m",
 		});
-		res.header("x-auth-token", token).send({ token });
+		res.header("x-auth-token", token).send({ token, user });
 	} catch (err: any) {
 		res.status(400).send({ error: err.message });
 	}

@@ -1,12 +1,12 @@
 import Joi from "joi";
 
 function registerValidation(data: {
-	name: string;
+	username: string;
 	email: string;
 	password: string;
 }) {
 	const schema = Joi.object({
-		name: Joi.string().required().min(3).max(255).label("Name"),
+		username: Joi.string().required().min(3).max(255).label("Username"),
 		email: Joi.string().email().required().min(3).max(255).label("Email"),
 		password: Joi.string().required().min(6).max(1024).label("Password"),
 	});

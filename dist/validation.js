@@ -7,7 +7,7 @@ exports.loginValidation = exports.registerValidation = void 0;
 const joi_1 = __importDefault(require("joi"));
 function registerValidation(data) {
     const schema = joi_1.default.object({
-        name: joi_1.default.string().required().min(3).max(255).label("Name"),
+        username: joi_1.default.string().required().min(3).max(255).label("Username"),
         email: joi_1.default.string().email().required().min(3).max(255).label("Email"),
         password: joi_1.default.string().required().min(6).max(1024).label("Password"),
     });

@@ -19,23 +19,26 @@ const User_1 = __importDefault(require("../models/User"));
 const validation_1 = require("../validation");
 function registerController(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
-        const { name, email, password } = req.body;
+        const { username, email, password } = req.body;
         const { error } = (0, validation_1.registerValidation)(req.body);
         if (error)
             return res.status(400).send({ error: error.details[0].message });
         try {
-            const emailExists = yield User_1.default.findOne({ email: req.body.email });
+            let emailExists = yield User_1.default.findOne({ email: req.body.email });
             if (emailExists)
                 return res.status(400).send({ error: "User already exists" });
             const salt = yield bcryptjs_1.default.genSalt(10);
             const hashedPassword = yield bcryptjs_1.default.hash(password, salt);
             const user = new User_1.default({
-                name,
+                likedProducts: [],
+                cart: [],
+                orders: [],
+                username,
                 email,
                 password: hashedPassword,
             });
             const savedUser = yield user.save();
-            res.send({ _id: savedUser._id });
+            res.send({ user: savedUser });
         }
         catch (err) {
             console.log(err.message);
@@ -54,10 +57,10 @@ function loginController(req, res) {
             const isMatch = yield bcryptjs_1.default.compare(password, user.password);
             if (!isMatch)
                 return res.status(400).send({ error: "Username or password incorrect" });
-            const token = jsonwebtoken_1.default.sign({ _id: user._id }, `${process.env.JWT_SECRET}`, {
+            const token = jsonwebtoken_1.default.sign({ user }, `${process.env.JWT_SECRET}`, {
                 expiresIn: "5m",
             });
-            res.header("x-auth-token", token).send({ token });
+            res.header("x-auth-token", token).send({ token, user });
         }
         catch (err) {
             res.status(400).send({ error: err.message });
